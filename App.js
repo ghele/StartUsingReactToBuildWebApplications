@@ -24,6 +24,9 @@ import ReactDOM from 'react-dom';
     handleContinue: function () {
       this.setState(this.getInitialState());
     },
+    handleAddGame: function ( ) {
+      routie('add');
+    },
     render: function ( ) {
       return (
         <div>
@@ -45,6 +48,11 @@ import ReactDOM from 'react-dom';
               </div>
             </div>) : <span/>
           }
+          <div className="row">
+            <div className="col-md-12">
+              <input onClick={this.handleAddGame} id="addGameButton" type="button" value="Add Game" className="btn" />
+            </div>
+          </div>
         </div>
         );
     }
@@ -63,6 +71,42 @@ import ReactDOM from 'react-dom';
           <h4>{this.props.title}</h4>
         </div>
       );
+    }
+  } )
+
+  var AddGameForm = React.createClass ( {
+    propTypes: {
+      onGameFormSubmitted: React.PropTypes.func.isRequired
+    },
+    handleSubmit: function ( ) {
+      var data = getRefs(this);
+      this.props.onGameFormSubmitted( getRefs ( this ) );
+      return false;
+    },
+    render: function ( ) {
+      return <div className="row">
+        <div className="col-md-12">
+          <h1>Add Game</h1>
+          <form role="form" onSubmit={this.handleSubmit}>
+            <div className="form-group">
+              <input ref="imageUrl" type="text" className="form-control" placeholder="Image Url" />
+            </div>
+            <div className="form-group">
+              <input ref="answer1" type="text" className="form-control" placeholder="Answer 1" />
+            </div>
+            <div className="form-group">
+              <input ref="answer2" type="text" className="form-control" placeholder="Answer 2" />
+            </div>
+            <div className="form-group">
+              <input ref="answer3" type="text" className="form-control" placeholder="Answer 3" />
+            </div>
+            <div className="form-group">
+              <input ref="answer4" type="text" className="form-control" placeholder="Answer 4" />
+            </div>
+            <button type="submit" className="btn btn-default">Submit</button>
+          </form>
+        </div>
+      </div>;
     }
   } )
 
@@ -105,7 +149,7 @@ import ReactDOM from 'react-dom';
     }
   ];
 
-  data.selectGame = function ( ) {
+  var selectGame = function ( ) {
     var books = _.shuffle(this.reduce( function ( p, c, i ) {
       return p.concat(c.books);
     }, [ ] ) ). slice(0, 4);
@@ -127,10 +171,41 @@ import ReactDOM from 'react-dom';
     };
   };
 
-  ReactDOM.render(
-    <Quiz data={data} />,
-    document.getElementById('app')
-  );
+  data.selectGame = selectGame;
+
+  routie({
+    '': function ( ) {
+      ReactDOM.render (
+        <Quiz data={data} />,
+        document.getElementById('app')
+      );
+    },
+    'add': function ( ) {
+      ReactDOM.render(
+        <AddGameForm onGameFormSubmitted={handleAddFormSubmitted} />,
+        document.getElementById('app')
+      );
+    }
+  });
+
+  function handleAddFormSubmitted ( data ) {
+    var quizData = [ {
+      imageUrl: data.imageUrl,
+      books: [ data.answer1, data.answer2,data.answer3, data.answer4 ]
+    } ];
+    quizData.selectGame = selectGame;
+    ReactDOM.render(
+      <Quiz data={quizData} />, document.getElementById('app')
+    );
+  }
+
+  function getRefs ( component ) {
+    var result = { };
+    Object.keys( component.refs ).forEach(function (refName) {
+      result[refName] = ReactDOM.findDOMNode(component.refs[refName]).value;
+    });
+    return result;
+  }
 
 } ) ( );
 
