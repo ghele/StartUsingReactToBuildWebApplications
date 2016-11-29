@@ -2,16 +2,20 @@
 // 1. the action (info about what happened)
 // 2. compy of current state
 
-// action, store
-//
-// okay let me see
-//
-//
-// store
-
 function posts (state = { }, action) {
-  console.log("The post will change");
-  console.log(state, action);
+  switch (action.type) {
+    case 'INCREMENT_LIKES':
+      console.log("Increment likes");
+      console.log(state);
+      const i = action.index;
+      return [
+        ...state.slice(0, 1), // before the one we are updating
+        {...state[i], likes: state[i].likes + 1},
+        ...state.slice(i + 1) // after the one we are updating
+      ]
+    default:
+      return state;
+  }
   return state;
 }
 
